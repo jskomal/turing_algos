@@ -12,9 +12,15 @@ class Tennis {
   scoreGame = (input: string) => {
     const scoresInput = input.split('')
     const playerScores: number[] = [0, 0]
-    scoresInput.forEach((score) => this.addGameScore(score, playerScores))
-    this.calculateSetScore(playerScores)
-    this.checkForWin()
+    if (this.p1SetWins === 6 && this.p2SetWins === 6) {
+      this.playTieBreaker(scoresInput, playerScores)
+    } else {
+      scoresInput.forEach((score) => {
+        this.addGameScore(score, playerScores)
+      })
+      this.calculateSetScore(playerScores)
+      this.checkForWin()
+    }
   }
 
   addGameScore = (player: string, playerScores: number[]) => {
@@ -81,9 +87,8 @@ class Tennis {
     const winner = playerScores.indexOf(50)
     if (winner === 0) this.p1SetWins++
     if (winner === 1) this.p2SetWins++
-    if (winner === -1) console.log('an error has occured')
+    if (winner === -1) console.log('no winner found')
     this.gameHistory.push(playerScores)
-    console.log(this)
   }
 
   checkForWin = () => {
@@ -92,6 +97,43 @@ class Tennis {
     } else if (this.p2SetWins > 5 && this.p2SetWins >= this.p1SetWins + 2) {
       console.log('Player 2 wins!!!')
     }
+  }
+
+  playTieBreaker = (scoresInput: string[], playerScores: number[]) => {
+    scoresInput.forEach((score) => {
+      if (playerScores[0] < 6 && playerScores[1] < 6) {
+        if (score === 'a') {
+          playerScores[0]++
+        } else {
+          playerScores[1]++
+        }
+      } else {
+        if (score === 'a' && playerScores[0] + 1 - playerScores[1] >= 2) {
+          playerScores[0]++
+          this.p1SetWins++
+          this.gameHistory.push(playerScores)
+          console.log('Player 1 wins via Tiebreaker!')
+        } else if (score === 'b' && playerScores[1] + 1 - playerScores[0] >= 2) {
+          playerScores[1]++
+          this.p2SetWins++
+          this.gameHistory.push(playerScores)
+          console.log('Player 2 wins via Tiebreaker!')
+        } else if (score === 'a') {
+          playerScores[0]++
+        } else if (score === 'b') {
+          playerScores[1]++
+        }
+      }
+    })
+    console.log(this)
+  }
+
+  showScore = () => {
+    console.log(
+      `The set count is ${this.p1SetWins} to ${
+        this.p2SetWins
+      }. The last game's score was ${this.gameHistory[this.gameHistory.length - 1]}`
+    )
   }
 }
 
@@ -129,7 +171,9 @@ const p1WinsTiebreakerTest = () => {
   test.scoreGame('aaaa')
   test.scoreGame('aaaa')
   test.scoreGame('aaaa')
-  test.scoreGame('aaaa')
+  test.scoreGame('bbbb')
+  test.scoreGame('aaaaabbbbbabbaaa')
+  test.showScore()
 }
 
 // p2WinsTest()
